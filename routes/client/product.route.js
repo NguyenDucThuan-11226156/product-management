@@ -5,4 +5,5 @@ router.get("/", controller.index);
 router.get("/detail", controller.detail);
 router.get("/edit", controller.edit);
 router.get("/create", controller.create);
+router.get("/:slug", controller.detail);
 module.exports = router;
