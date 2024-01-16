@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const database = require("./config/database");
 const methodOverride = require("method-override");
+const path = require("path");
 dotenv.config();
 database.connectDatabase();
 const routesClient = require("./routes/client/index.route");
@@ -17,12 +18,19 @@ app.set("views", `${__dirname}/views`);
 app.set("view engine", "pug");
 app.use(methodOverride("_method"));
 app.use(express.static(`${__dirname}/public`));
+
+app.use(
+  "/tinymce",
+  express.static(path.join(__dirname, "node_modules", "tinymce"))
+);
+
 app.use(bodyParser.urlencoded({ extended: false }));
 //flash
 app.use(cookieParser("Dat Gi cung duoc"));
 app.use(session({ cookie: { maxAge: 60000 } }));
 app.use(flash());
 //end flash
+
 // app Local
 app.locals.prefixAdmin = system.prefixAdmin;
 //routes admin

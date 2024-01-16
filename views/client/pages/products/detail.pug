@@ -23,7 +23,13 @@ block main
               src=product.thumbnail
               style="width: 100px"
             )
-
+        if(product.status)
+          div(class="mb-4")
+            span Trang Thai: 
+            if(product.status === "active")
+              span(class="badge badge-success") Hoat dong 
+            else 
+              span(class="badge badge-danger") Dung hoat dong
         if (product.position)
           div(class="mb-4") Vị trí: <b>#{product.position}</b>
 

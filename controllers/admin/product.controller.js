@@ -22,11 +22,16 @@ module.exports.index = async (req, res) => {
     const countPagination = await Product.countDocuments(find);
     const objectPagination = paginationHelper(4, req.query, countPagination);
     // End Pagination
-
+    // Sort
+    const sort = {};
+    if (req.query.sortKey && req.query.sortValue) {
+      sort[req.query.sortKey] = req.query.sortValue;
+    } else {
+      sort["position"] = "desc";
+    }
+    // End Sort
     const products = await Product.find(find)
-      .sort({
-        position: "desc",
-      })
+      .sort(sort)
       .limit(objectPagination.limitItems)
       .skip(objectPagination.skip);
     res.render("admin/pages/products/index", {
@@ -191,41 +196,15 @@ module.exports.editPatch = async (req, res) => {
 module.exports.detail = async (req, res) => {
   try {
     const id = req.params.id;
-
     const product = await Product.findOne({
       _id: id,
       deleted: false,
     });
-
-    console.log(product);
-
     res.render("admin/pages/products/detail", {
       pageTitle: "Chi tiết sản phẩm",
       product: product,
     });
   } catch (error) {
     res.redirect(`/${systemConfig.prefixAdmin}/products`);
-  }
-};
-
-// [GET] /products/:slug
-module.exports.detail = async (req, res) => {
-  try {
-    const slug = req.params.slug;
-
-    const product = await Product.findOne({
-      slug: slug,
-      deleted: false,
-      status: "active",
-    });
-
-    console.log(product);
-
-    res.render("client/pages/products/detail", {
-      pageTitle: product.title,
-      product: product,
-    });
-  } catch (error) {
-    res.redirect("/");
   }
 };
