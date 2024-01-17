@@ -2,7 +2,8 @@ const Product = require("../../models/product.model");
 const filterStateHelper = require("../../helpers/filter-state.helper");
 const paginationHelper = require("../../helpers/pagination.helper");
 const systemConfig = require("../../config/system");
-
+const ProductCategory = require("../../models/product-category.model");
+const createTreeHelper = require("../../helpers/create-tree.helper");
 module.exports.index = async (req, res) => {
   try {
     const filterState = filterStateHelper(req.query);
@@ -122,9 +123,15 @@ module.exports.deleteItem = async (req, res) => {
   req.flash("success", "Đã xóa sản phẩm thành công!");
   res.redirect("back");
 };
-module.exports.create = (req, res) => {
+// [GET] /admin/products/create
+module.exports.create = async (req, res) => {
+  const records = await ProductCategory.find({
+    deleted: false,
+  });
+  const newRecords = createTreeHelper(records);
   res.render("admin/pages/products/create", {
     pageTitle: "Thêm mới sản phẩm",
+    records: newRecords,
   });
 };
 module.exports.createPost = async (req, res) => {
@@ -137,6 +144,8 @@ module.exports.createPost = async (req, res) => {
   } else {
     req.body.position = parseInt(req.body.position);
   }
+  console.log(req.body);
+
   const product = new Product(req.body);
   await product.save();
 
@@ -152,12 +161,15 @@ module.exports.edit = async (req, res) => {
       _id: id,
       deleted: false,
     });
+    const records = await ProductCategory.find({
+      deleted: false,
+    });
 
-    console.log(product);
-
+    const newRecords = createTreeHelper(records);
     res.render("admin/pages/products/edit", {
       pageTitle: "Chỉnh sửa sản phẩm",
       product: product,
+      records: newRecords,
     });
   } catch (error) {
     res.redirect(`/${systemConfig.prefixAdmin}/products`);
@@ -166,7 +178,6 @@ module.exports.edit = async (req, res) => {
 module.exports.editPatch = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(req.body);
     req.body.price = parseInt(req.body.price);
     req.body.discountPercentage = parseInt(req.body.discountPercentage);
     req.body.stock = parseInt(req.body.stock);
