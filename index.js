@@ -12,6 +12,9 @@ const bodyParser = require("body-parser");
 const flash = require("express-flash");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const moment = require("moment");
+const http = require("http");
+const { Server } = require("socket.io");
 const app = express();
 const PORT = process.env.PORT;
 app.set("views", `${__dirname}/views`);
@@ -30,14 +33,25 @@ app.use(cookieParser("Dat Gi cung duoc"));
 app.use(session({ cookie: { maxAge: 60000 } }));
 app.use(flash());
 //end flash
-
+// SocketIO
+const server = http.createServer(app);
+const io = new Server(server);
+global._io = io;
+// End SocketIO
 // app Local
 app.locals.prefixAdmin = system.prefixAdmin;
+app.locals.moment = moment;
 //routes admin
 routesAdmin(app);
 //routes client
 routesClient(app);
-
-app.listen(PORT, () => {
+// 404 Not Found
+app.get("*", (req, res) => {
+  res.render("client/pages/errors/404", {
+    pageTitle: "404 Not Found",
+  });
+  // res.redirect("/");
+});
+server.listen(PORT, () => {
   console.log(`App is listening at ${PORT}`);
 });

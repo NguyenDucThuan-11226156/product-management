@@ -106,6 +106,7 @@ if (formChangeMulti) {
     event.preventDefault();
     const type = event.target.elements.type.value;
     console.log(type);
+    ss;
     if (type === "delete-all") {
       const isConfirm = confirm("Bạn có chắc muốn xóa những bản ghi này?");
       if (!isConfirm) {
@@ -225,3 +226,61 @@ if (sort) {
   }
 }
 // End Sort
+// Permissions
+const tablePermissions = document.querySelector("[table-permissions]");
+if (tablePermissions) {
+  // Submit Data
+  const buttonSubmit = document.querySelector("[button-submit]");
+  buttonSubmit.addEventListener("click", () => {
+    const roles = [];
+
+    const rows = tablePermissions.querySelectorAll("[data-name]");
+    rows.forEach((row) => {
+      const name = row.getAttribute("data-name");
+      const inputs = row.querySelectorAll("input");
+      if (name == "id") {
+        inputs.forEach((input) => {
+          const id = input.value;
+          roles.push({
+            id: id,
+            permissions: [],
+          });
+        });
+      } else {
+        inputs.forEach((input, index) => {
+          if (input.checked) {
+            roles[index].permissions.push(name);
+          }
+        });
+      }
+    });
+
+    const formChangePermissions = document.querySelector(
+      "[form-change-permissions]"
+    );
+    const inputRoles = formChangePermissions.querySelector(
+      "input[name='roles']"
+    );
+    inputRoles.value = JSON.stringify(roles);
+    formChangePermissions.submit();
+  });
+
+  // Data Default
+  const divRecords = document.querySelector("[data-records]");
+  if (divRecords) {
+    const records = JSON.parse(divRecords.getAttribute("data-records"));
+    records.forEach((record, index) => {
+      console.log(record);
+      const permissions = record.permissions;
+
+      permissions.forEach((permission) => {
+        const row = tablePermissions.querySelector(
+          `[data-name="${permission}"]`
+        );
+        const input = row.querySelectorAll("input")[index];
+        input.checked = true;
+      });
+    });
+  }
+}
+// End Permissions
