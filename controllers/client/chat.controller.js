@@ -1,26 +1,16 @@
 const Chat = require("../../models/chat.model");
 const User = require("../../models/user.model");
-// [GET] /chat/
+const chatSocket = require("../../sockets/client/chat.socket");
+const uploadToCloudinary = require("../../helpers/upload-to-cloudinary.helper");
+// [GET] /chat/:roomChatId
 module.exports.index = async (req, res) => {
-  const userId = res.locals.user.id;
   // SocketIO
-  _io.once("connection", (socket) => {
-    // Người dùng gửi tin nhắn lên server
-    socket.on("CLIENT_SEND_MESSAGE", async (content) => {
-      const chat = new Chat({
-        user_id: userId,
-        content: content,
-      });
-
-      await chat.save();
-
-      // Trả data ra giao diện realtime
-      // Code ở đây...
-    });
-  });
+  chatSocket(req, res);
   // End SocketIO
+  const roomChatId = req.params.roomChatId;
   // Lấy data từ database
   const chats = await Chat.find({
+    room_chat_id: roomChatId,
     deleted: false,
   });
   for (const chat of chats) {
@@ -29,7 +19,6 @@ module.exports.index = async (req, res) => {
     }).select("fullName");
     chat.infoUser = infoUser;
   }
-  console.log(chats);
   // Hết Lấy data từ database
   res.render("client/pages/chat/index", {
     pageTitle: "Chat",

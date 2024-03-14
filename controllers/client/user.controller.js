@@ -80,11 +80,40 @@ module.exports.loginPost = async (req, res) => {
       user_id: user.id,
     }
   );
+  await User.updateOne(
+    {
+      _id: user.id,
+    },
+    {
+      statusOnline: "online",
+    }
+  );
+  _io.once("connection", (socket) => {
+    socket.broadcast.emit("SERVER_RETURN_USER_STATUS", {
+      userId: user.id,
+      status: "online",
+    });
+  });
   res.redirect("/");
 };
 // [GET] /user/logout
 module.exports.logout = async (req, res) => {
   res.clearCookie("tokenUser");
+  const userId = res.locals.user.id;
+  await User.updateOne(
+    {
+      _id: userId,
+    },
+    {
+      statusOnline: "offline",
+    }
+  );
+  _io.once("connection", (socket) => {
+    socket.broadcast.emit("SERVER_RETURN_USER_STATUS", {
+      userId: userId,
+      status: "offline",
+    });
+  });
   res.redirect("/");
 };
 // [GET] /user/password/forgot
