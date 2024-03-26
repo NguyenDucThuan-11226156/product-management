@@ -67,7 +67,7 @@ socket.on("SERVER_SEND_MESSAGE", (data) => {
     ${htmlImages}
   `;
 
-  body.appendChild(div);
+  // body.appendChild(div);
   body.insertBefore(div, elementListTyping);
   body.scrollTop = body.scrollHeight;
   const gallery = new Viewer(div);
@@ -104,7 +104,6 @@ if (buttonIcon) {
   var timeOut;
 
   inputChat.addEventListener("keyup", () => {
-    console.log("Hello");
     socket.emit("CLIENT_SEND_TYPING", "show");
 
     clearTimeout(timeOut);
